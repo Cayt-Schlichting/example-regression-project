@@ -109,6 +109,8 @@ def prep_zillow(df,**kwargs):
     df = df[df.sf>=120]
     #drop 9+ beds, 9+ baths and 5+ million
     df = df[(df.value < 5_000_000) & (df.bath < 9) & (df.bed <9)]
+    #drop anything with zero baths
+    df = df[df.bath>0]
 
     
     #CONVERT column datatypes
