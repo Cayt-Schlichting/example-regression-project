@@ -180,12 +180,14 @@ def wrangle_zillow(**kwargs):
     #clean, split and return data
     return prep_zillow(df,**kwargs)
 
-
 def scale_zillow(tr,te,val,**kwargs):
     '''
     Takes prepped tr, test, validate zillow subsets. Scales the non-categorical independent variables and \
       returns dataframes of the same structure.  Expects pandas dataframes with the following columns, \
-          in order: cols = ['value', 'county', 'bed', 'bath', 'sf', 'yearbuilt', 'Orange_CA', 'Ventura_CA']
+          in order: 
+          cols = ['value', 'county', 'bed', 'bath', 'sf', 'sf_per_bed','yearbuilt', 'Orange_CA', 'Ventura_CA']
+          or cols = ['value', 'zipcode', 'county', 'bed', 'bath', 'sf', 'sf_per_bed','yearbuilt',...
+              'Orange_CA', 'Ventura_CA', <list of zip codes>]
     Returns: 3 Pandas DataFrames (Train, Test, Validate)
     Inputs:
            (R) tr: train dataset
@@ -208,21 +210,33 @@ def scale_zillow(tr,te,val,**kwargs):
         scaler = MinMaxScaler()
 
     #Pull out columns to be scaled
-    X_tr = tr[['bed','bath','sf','yearbuilt']]
-    X_te = te[['bed','bath','sf','yearbuilt']]
-    X_val = val[['bed','bath','sf','yearbuilt']]
-
+    X_tr = tr[['bed', 'bath', 'sf', 'sf_per_bed','yearbuilt']]
+    X_te = te[['bed', 'bath', 'sf', 'sf_per_bed','yearbuilt']]
+    X_val = val[['bed', 'bath', 'sf', 'sf_per_bed','yearbuilt']]
+    
     #fit scaler and transform on train - needs to be stored as pd.DF in order to concat
-    tr_scaled = pd.DataFrame(scaler.fit_transform(X_tr),columns=['bed','bath','sf','yearbuilt'],index=X_tr.index)
+    tr_scaled = pd.DataFrame(scaler.fit_transform(X_tr),columns=['bed', 'bath', 'sf', 'sf_per_bed','yearbuilt'],index=X_tr.index)
     #transform the rest
-    te_scaled = pd.DataFrame(scaler.transform(X_te),columns=['bed','bath','sf','yearbuilt'],index=X_te.index)
-    val_scaled = pd.DataFrame(scaler.transform(X_val),columns=['bed','bath','sf','yearbuilt'],index=X_val.index)
+    te_scaled = pd.DataFrame(scaler.transform(X_te),columns=['bed', 'bath', 'sf', 'sf_per_bed','yearbuilt'],index=X_te.index)
+    val_scaled = pd.DataFrame(scaler.transform(X_val),columns=['bed', 'bath', 'sf', 'sf_per_bed','yearbuilt'],index=X_val.index)
 
+    #Determine if dealing with zipcode
+    if 'zipcode' in tr.columns:
+        #column number for start of data needing scaling
+        i1 = 3
+        #column number for start of encoded data
+        i2 = 9
+    else:
+        #column number for start of data needing scaling
+        i1 = 2
+        #column number for start of encoded data
+        i2 = 8
+    
     #rebuild the dataframes in original format
-    # value (target), county (eda cat), <all scaled>, county (encoded cat)
-    tr_scaled = pd.concat([tr.iloc[:,0:2],tr_scaled,tr.iloc[:,-2:]],axis=1)
-    te_scaled = pd.concat([te.iloc[:,0:2],te_scaled,te.iloc[:,-2:]],axis=1)
-    val_scaled = pd.concat([val.iloc[:,0:2],val_scaled,val.iloc[:,-2:]],axis=1)
+    # value (target), county/zip (eda cat), <all scaled>, county/zip (encoded cat)
+    tr_scaled = pd.concat([tr.iloc[:,0:i1],tr_scaled,tr.iloc[:,i2:]],axis=1)
+    te_scaled = pd.concat([te.iloc[:,0:i1],te_scaled,te.iloc[:,i2:]],axis=1)
+    val_scaled = pd.concat([val.iloc[:,0:i1],val_scaled,val.iloc[:,i2:]],axis=1)
 
     #return dataframes with scaled data
     return tr_scaled, te_scaled, val_scaled
