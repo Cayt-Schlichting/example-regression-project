@@ -227,12 +227,12 @@ def scale_zillow(tr,te,val,**kwargs):
         #column number for start of data needing scaling
         i1 = 3
         #column number for start of encoded data
-        i2 = 9
+        i2 = 8
     else:
         #column number for start of data needing scaling
         i1 = 2
         #column number for start of encoded data
-        i2 = 8
+        i2 = 7
     
     #rebuild the dataframes in original format
     # value (target), county/zip (eda cat), <all scaled>, county/zip (encoded cat)

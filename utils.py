@@ -243,6 +243,23 @@ def regression_errors(y,yhat):
         },index=[ind])
     return df
 
+def get_reg_model_stats(y,yhat):
+    '''
+    Takes in actual and predicted values. Returns dataframe of regression model performance statistics.
+    
+    Returns: Pandas DataFrame
+    Input:
+      (R)    y: actual values (pd.Series)
+      (R) yhat: predicted values (pd.Series)
+    '''
+    #Create DataFrame with performance stats as columns, model name as index
+    df = pd.DataFrame({
+        'sse': [sse(y,yhat)],
+        'mse': [mean_squared_error(y,yhat)],
+        'rmse': [rmse(y,yhat)],
+        },index=[yhat.name])
+    return df
+
 def baseline_mean_errors(y):
     '''
     Takes in actual values. Returns dataframe of regression performance statistics.
