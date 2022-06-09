@@ -107,8 +107,8 @@ def prep_zillow(df,**kwargs):
     df = df[df.sf<df.sf.quantile(.999)]
     #drop anything less than 120 sf
     df = df[df.sf>=120]
-    #drop 9+ beds, 9+ baths and 5+ million
-    df = df[(df.value < 5_000_000) & (df.bath < 9) & (df.bed <9)]
+    #drop 9+ beds, 9+ baths and 2+ million
+    df = df[(df.value < 2_000_000) & (df.bath < 9) & (df.bed <9)]
     #drop anything with zero baths
     df = df[df.bath>0]
 
@@ -126,8 +126,8 @@ def prep_zillow(df,**kwargs):
     for i in df.index:
         #for each row do math of sf/bed.  If bed is zero, use 1
         df.loc[i,'sf_per_bed'] = df.loc[i,'sf']/ max(1,df.loc[i,'bed'])
-    #DROP rows w/ < 100 sf/bed or >= 3500 sf/bed
-    df = df[(df.sf_per_bed>99) & (df.sf_per_bed<3500)]
+    #DROP rows w/ < 100 sf/bed or >=1500 sf/bed
+    df = df[(df.sf_per_bed>99) & (df.sf_per_bed<1500)]
 
 
     #HANDLE fips

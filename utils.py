@@ -6,6 +6,7 @@ import seaborn as sns
 
 from math import sqrt
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.feature_selection import SelectKBest, f_regression
 from itertools import combinations, product, permutations
 
 ###### GRAPHING #######
@@ -51,6 +52,20 @@ def xticks_k(ax):
     '''
     #Get yticks and format them
     xlabels = ['{:,.1f}'.format(x) + 'K' for x in ax.get_xticks()/1000];
+    #Force yticks (handles user interaction)
+    ax.set_xticks(ax.get_xticks());
+    ax.set_xticklabels(xlabels);
+    return None
+
+def xticks_mm(ax):
+    '''
+    Formats the x axis ticks to thousands for axes subplots.
+    Returns: None
+    Inputs: 
+        (R) ax: AxesSubplot
+    '''
+    #Get yticks and format them
+    xlabels = ['{:,.1f}'.format(x) + 'MM' for x in ax.get_xticks()/1_000_000];
     #Force yticks (handles user interaction)
     ax.set_xticks(ax.get_xticks());
     ax.set_xticklabels(xlabels);
@@ -142,6 +157,28 @@ def plot_cat_and_continuous(df,**kwargs):
 ##########################
 ##########################
 
+###### Model Support  ######
+def select_kbest(X,y,k):
+    '''
+    Uses sklearn.feature_selection.SelectKBest to select top k features.
+    
+    Returns: List corresp
+    Inputs: 
+      (R) X: Pandas Dataframe of features and values
+      (R) y: target variable
+      (R) k: number of features to select
+    '''
+    #Create feature selector & fit
+    f_selector = SelectKBest(f_regression,k=k).fit(X,y)
+    # Boolean mask of which columns are selected
+    f_mask = f_selector.get_support()
+    #get list of top features
+    k_features = X.columns[f_mask].tolist()
+    #return features as list
+    return k_features
+##########################
+##########################
+   
 ###### Pretty Print Stats  ######
 def stats_result(p,null_h,**kwargs):
     """
